@@ -116,3 +116,7 @@ with your real backend URL, for example:
 2. Upload `.ppt/.pptx/.pdf`
 3. Click **Convert + Merge**
 4. If conversion fails, verify backend host has LibreOffice available as `soffice`
+
+## Inspiration
+
+This was inspired by this user's Manifest extension: https://github.com/Artificialhuman74/Manifest
