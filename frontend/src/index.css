@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 42 50% 98%;
+  --foreground: 218 30% 18%;
+  --card: 0 0% 100%;
+  --card-foreground: 218 30% 18%;
+  --primary: 184 66% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 213 36% 94%;
+  --secondary-foreground: 218 30% 20%;
+  --muted: 210 36% 95%;
+  --muted-foreground: 216 16% 46%;
+  --accent: 202 94% 92%;
+  --accent-foreground: 218 30% 20%;
+  --destructive: 0 72% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 88%;
+  --input: 214 32% 88%;
+  --ring: 184 66% 33%;
+  --radius: 0.85rem;
+}
+
+.dark {
+  --background: 216 30% 8%;
+  --foreground: 0 0% 98%;
+  --card: 217 28% 12%;
+  --card-foreground: 0 0% 98%;
+  --primary: 174 70% 50%;
+  --primary-foreground: 220 30% 10%;
+  --secondary: 217 25% 18%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 217 24% 18%;
+  --muted-foreground: 215 20% 70%;
+  --accent: 216 24% 20%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 63% 45%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 217 24% 23%;
+  --input: 217 24% 23%;
+  --ring: 174 70% 50%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(circle at 50% -12%, hsl(214 100% 70% / 0.08), transparent 48%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--background)));
+  }
+}

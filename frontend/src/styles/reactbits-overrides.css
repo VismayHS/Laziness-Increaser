@@ -1,0 +1,464 @@
+.rb-heading .animated-gradient-text {
+  margin: 0;
+  max-width: none;
+  justify-content: flex-start;
+  cursor: default;
+}
+
+.rb-heading .text-content {
+  letter-spacing: -0.02em;
+}
+
+.rb-credit-wrap {
+  max-width: 54rem;
+}
+
+.rb-credit-line {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.rb-credit-line .text-type__cursor {
+  color: #93c5fd;
+}
+
+.rb-host-note {
+  margin: 0.4rem 0 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+.rb-host-note-link {
+  color: #93c5fd;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rb-host-note-link:hover {
+  color: #bfdbfe;
+}
+
+.rb-dropzone-shell {
+  transition: transform 180ms ease;
+}
+
+.rb-dropzone-shell:not(.cursor-not-allowed):hover {
+  transform: translateY(-1px);
+}
+
+.rb-dropzone-card.border-glow-card {
+  border-radius: 1rem;
+  border-color: rgba(148, 163, 184, 0.28);
+  box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.rb-dropzone-card.border-glow-card:hover {
+  border-color: rgba(147, 197, 253, 0.45);
+  box-shadow: 0 12px 28px rgba(30, 64, 175, 0.22);
+}
+
+.rb-dropzone-card .border-glow-inner {
+  border-radius: inherit;
+}
+
+.rb-dropzone-active {
+  transform: scale(1.01);
+}
+
+.rb-dropzone-inner {
+  min-height: 12.5rem;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+  padding: 1.6rem 1.25rem;
+}
+
+.rb-dropzone-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.85);
+  color: #bfdbfe;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rb-dropzone-title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.rb-dropzone-sub {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.86rem;
+}
+
+.rb-dropzone-types {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.rb-dropzone-types span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.26rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(15, 23, 42, 0.45);
+  color: #cbd5e1;
+  font-size: 0.73rem;
+  font-weight: 500;
+}
+
+.rb-queue-shell {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.42);
+  border-radius: 1rem;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.rb-queue-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.rb-queue-title {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.rb-queue-meta {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.rb-empty-queue {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.35);
+  border-radius: 1rem;
+  padding: 1rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.rb-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.rb-sortable-item {
+  list-style: none;
+  transform-origin: center;
+  will-change: transform;
+  touch-action: none;
+}
+
+.rb-sortable-item.is-dragging {
+  position: relative;
+  z-index: 20;
+}
+
+.rb-file-card {
+  position: relative;
+  overflow: hidden;
+  padding: 0.72rem !important;
+  border-radius: 0.85rem !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  background: rgba(15, 23, 42, 0.68) !important;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.rb-file-shell {
+  transition: opacity 180ms ease;
+}
+
+.rb-file-shell-dragging {
+  opacity: 0.92;
+}
+
+.rb-file-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0));
+  opacity: 0;
+  transition: opacity 160ms ease;
+  pointer-events: none;
+}
+
+.rb-file-shell:hover .rb-file-card::before,
+.rb-file-card:focus-within::before {
+  opacity: 1;
+}
+
+.rb-file-card-dragging {
+  border-color: rgba(125, 211, 252, 0.55) !important;
+  box-shadow: 0 10px 24px rgba(14, 116, 144, 0.25);
+}
+
+.rb-file-card-overlay {
+  padding: 0.72rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(125, 211, 252, 0.55);
+  background: rgba(15, 23, 42, 0.92);
+  box-shadow: 0 14px 30px rgba(2, 132, 199, 0.25);
+}
+
+.rb-file-card-over {
+  border-color: rgba(125, 211, 252, 0.58) !important;
+  background: rgba(30, 41, 59, 0.82) !important;
+}
+
+.rb-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 2.65rem;
+}
+
+.rb-file-drag,
+.rb-file-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.75);
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.rb-file-drag {
+  cursor: grab;
+}
+
+.rb-sortable-item.is-dragging .rb-file-drag {
+  cursor: grabbing;
+}
+
+.rb-file-drag:hover,
+.rb-file-btn:hover {
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #e2e8f0;
+}
+
+.rb-file-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #e2e8f0;
+}
+
+.rb-file-icon-pdf {
+  background: rgba(59, 130, 246, 0.18);
+}
+
+.rb-file-icon-ppt {
+  background: rgba(249, 115, 22, 0.18);
+}
+
+.rb-file-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.rb-file-name {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 0.93rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rb-file-size {
+  margin: 0.12rem 0 0;
+  color: #94a3b8;
+  font-size: 0.76rem;
+}
+
+.rb-status-panel {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(2, 6, 23, 0.68);
+  border-radius: 1rem;
+  padding: 1rem;
+  backdrop-filter: blur(10px);
+  align-self: start;
+}
+
+@media (min-width: 1024px) {
+  .rb-status-panel {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+.rb-status-head {
+  margin-bottom: 0.8rem;
+}
+
+.rb-status-kicker {
+  margin: 0;
+  font-size: 0.73rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.rb-status-meta {
+  margin: 0.3rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.88rem;
+}
+
+.rb-status-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.36rem;
+}
+
+.rb-status-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  border-radius: 0.65rem;
+  border: 1px solid transparent;
+  padding: 0.25rem 0.55rem;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.rb-status-step.is-active {
+  border-color: rgba(96, 165, 250, 0.4);
+  background: rgba(30, 64, 175, 0.16);
+  color: #dbeafe;
+}
+
+.rb-step-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.rb-status-step.is-active .rb-step-dot {
+  background: #60a5fa;
+}
+
+.rb-progress-wrap {
+  margin-top: 0.9rem;
+}
+
+.rb-progress-track {
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: rgba(51, 65, 85, 0.7);
+  overflow: hidden;
+}
+
+.rb-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.95), rgba(56, 189, 248, 0.85));
+  transition: width 320ms ease;
+}
+
+.rb-progress-label {
+  margin: 0.4rem 0 0;
+  text-align: right;
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.rb-btn-base {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.85rem;
+  min-height: 2.65rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: transform 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.rb-btn-outline {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.56);
+  color: #cbd5e1;
+}
+
+.rb-btn-outline:not(:disabled):hover {
+  border-color: rgba(148, 163, 184, 0.52);
+  color: #e2e8f0;
+}
+
+.rb-btn-gradient {
+  border-radius: 0.85rem;
+  transition: transform 160ms ease;
+}
+
+.rb-btn-gradient .inner-content {
+  border-radius: 0.85rem;
+  border-color: rgba(125, 211, 252, 0.45);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(10, 16, 30, 0.95));
+  padding: 0 !important;
+}
+
+.rb-btn-gradient-label {
+  display: block;
+  width: 100%;
+  padding: 0.72rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.rb-btn-gradient:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.rb-btn-gradient:disabled,
+.rb-btn-outline:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

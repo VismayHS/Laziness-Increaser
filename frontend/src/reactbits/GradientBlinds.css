@@ -1,0 +1,44 @@
+.gradient-blinds-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gradient-blinds-layer,
+.gradient-blinds-stripes {
+  position: absolute;
+  inset: 0;
+}
+
+.gradient-blinds-layer {
+  background:
+    radial-gradient(circle at 18% 22%, var(--gb-c1) 0%, transparent 45%),
+    radial-gradient(circle at 78% 24%, var(--gb-c2) 0%, transparent 45%),
+    radial-gradient(circle at 50% 78%, var(--gb-c3) 0%, transparent 45%),
+    linear-gradient(var(--gb-angle), var(--gb-c1), var(--gb-c2), var(--gb-c3));
+  background-size: 170% 170%;
+  animation: gb-flow 14s ease-in-out infinite alternate;
+  filter: saturate(1.1) brightness(0.95);
+}
+
+.gradient-blinds-stripes {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.14) 0,
+    rgba(255, 255, 255, 0.14) 1px,
+    transparent 1px,
+    transparent max(calc(100% / var(--gb-count, 14)), var(--gb-min, 60px))
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
+}
+
+@keyframes gb-flow {
+  0% {
+    background-position: 0% 30%, 100% 30%, 40% 100%, 0% 50%;
+  }
+  100% {
+    background-position: 30% 0%, 80% 80%, 60% 0%, 100% 50%;
+  }
+}

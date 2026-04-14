@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PPT/PDF Converter + Merger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-a: #fff8f0;
+        --bg-b: #edf6ff;
+        --surface: rgba(255, 255, 255, 0.9);
+        --surface-strong: #ffffff;
+        --text: #1f2a37;
+        --muted: #5f6c7d;
+        --border: #d8e0ea;
+        --teal: #0f766e;
+        --teal-hover: #0d5f59;
+        --amber: #b45309;
+        --danger: #b42318;
+        --shadow: 0 18px 45px rgba(31, 42, 55, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Outfit", "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 10% 5%, rgba(15, 118, 110, 0.18) 0%, transparent 45%),
+          radial-gradient(circle at 90% 10%, rgba(180, 83, 9, 0.16) 0%, transparent 45%),
+          linear-gradient(140deg, var(--bg-a) 0%, var(--bg-b) 100%);
+      }
+
+      .app {
+        max-width: 920px;
+        margin: 36px auto;
+        padding: 0 18px 24px;
+      }
+
+      .hero {
+        margin-bottom: 16px;
+        animation: rise 450ms ease-out;
+      }
+
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: clamp(1.45rem, 3.5vw, 2rem);
+        letter-spacing: 0.01em;
+      }
+
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        max-width: 70ch;
+        line-height: 1.45;
+      }
+
+      .panel {
+        background: var(--surface);
+        backdrop-filter: blur(5px);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+        animation: rise 620ms ease-out;
+      }
+
+      .picker-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .picker {
+        display: block;
+        background: var(--surface-strong);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        cursor: pointer;
+        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .picker:hover {
+        transform: translateY(-2px);
+        border-color: #b9c6d8;
+        box-shadow: 0 8px 24px rgba(31, 42, 55, 0.08);
+      }
+
+      .picker input {
+        display: none;
+      }
+
+      .picker-title {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .picker-sub {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .toolbar {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      button {
+        font-family: inherit;
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.18s ease, opacity 0.18s ease, background 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        opacity: 0.68;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .ghost-btn {
+        background: #f2f5f9;
+        color: #2c3a4c;
+        border: 1px solid var(--border);
+      }
+
+      .ghost-btn:hover {
+        background: #e9eef5;
+      }
+
+      .primary-btn {
+        background: var(--teal);
+        color: #fff;
+      }
+
+      .primary-btn:hover {
+        background: var(--teal-hover);
+      }
+
+      .primary-btn.loading::after {
+        content: "";
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        margin-left: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+
+      .status {
+        margin-top: 14px;
+        min-height: 22px;
+        font-weight: 600;
+      }
+
+      .status.success {
+        color: #0f766e;
+      }
+
+      .status.error {
+        color: var(--danger);
+      }
+
+      .status.note {
+        color: var(--amber);
+      }
+
+      .order-top {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+
+      .order-top h2 {
+        margin: 0;
+        font-size: 1.05rem;
+      }
+
+      .order-hint {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .order-list {
+        list-style: none;
+        margin: 12px 0 0;
+        padding: 0;
+        display: grid;
+        gap: 8px;
+      }
+
+      .order-item {
+        display: grid;
+        grid-template-columns: auto auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px 12px;
+        background: #fff;
+        animation: itemIn 320ms ease both;
+      }
+
+      .order-item.drag-over {
+        border-color: var(--teal);
+        box-shadow: inset 0 0 0 1px var(--teal);
+      }
+
+      .order-item.dragging {
+        opacity: 0.7;
+      }
+
+      .order-empty {
+        color: var(--muted);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        text-align: center;
+      }
+
+      .drag-grip {
+        font-family: "Space Mono", monospace;
+        color: #6b7789;
+        letter-spacing: -1px;
+        cursor: grab;
+        user-select: none;
+      }
+
+      .order-index {
+        font-family: "Space Mono", monospace;
+        color: #3f4a59;
+        font-size: 0.9rem;
+        min-width: 28px;
+      }
+
+      .file-name {
+        margin: 0;
+        font-weight: 600;
+        line-height: 1.3;
+        word-break: break-word;
+      }
+
+      .file-type {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .row-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .icon-btn {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fbfcfe;
+        color: #2c3a4c;
+      }
+
+      .footnote {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes itemIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 740px) {
+        .app {
+          margin-top: 24px;
+        }
+
+        .picker-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .toolbar {
+          justify-content: stretch;
+        }
+
+        .toolbar button {
+          flex: 1;
+        }
+
+        .order-item {
+          grid-template-columns: auto auto 1fr;
+          grid-template-areas:
+            "grip idx meta"
+            "actions actions actions";
+        }
+
+        .drag-grip {
+          grid-area: grip;
+        }
+
+        .order-index {
+          grid-area: idx;
+        }
+
+        .file-meta {
+          grid-area: meta;
+        }
+
+        .row-actions {
+          grid-area: actions;
+          justify-content: flex-end;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <h1>PPT/PDF Converter + Merger</h1>
+        <p>
+          Add your .ppt, .pptx, and .pdf files, reorder them exactly how you want, then download one merged PDF.
+        </p>
+      </header>
+
+      <section class="panel">
+        <form id="process-form">
+          <div class="picker-grid">
+            <label class="picker" for="files-input">
+              <span class="picker-title">Add Files</span>
+              <span class="picker-sub">Pick one or many files from any folder.</span>
+              <input id="files-input" type="file" multiple accept=".ppt,.pptx,.pdf" />
+            </label>
+
+            <label class="picker" for="folder-input">
+              <span class="picker-title">Add Folder</span>
+              <span class="picker-sub">Load a whole folder and reorder before merge.</span>
+              <input id="folder-input" type="file" webkitdirectory directory multiple />
+            </label>
+          </div>
+
+          <div class="toolbar">
+            <button id="clear-btn" class="ghost-btn" type="button">Clear List</button>
+            <button id="submit-btn" class="primary-btn" type="submit">Convert + Merge</button>
+          </div>
+        </form>
+
+        <div id="status" class="status" aria-live="polite"></div>
+
+        <div class="order-top">
+          <h2>Merge Order</h2>
+          <p class="order-hint">Drag rows or use arrows to reorder.</p>
+        </div>
+
+        <ul id="order-list" class="order-list"></ul>
+
+        <p class="footnote">LibreOffice must be installed to convert PPT/PPTX to PDF.</p>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("process-form");
+      const filesInput = document.getElementById("files-input");
+      const folderInput = document.getElementById("folder-input");
+      const clearButton = document.getElementById("clear-btn");
+      const submitButton = document.getElementById("submit-btn");
+      const statusEl = document.getElementById("status");
+      const orderListEl = document.getElementById("order-list");
+
+      const allowedExtensions = new Set([".ppt", ".pptx", ".pdf"]);
+      let selectedItems = [];
+      let idCounter = 0;
+      let draggingId = null;
+
+      function getExtension(name) {
+        const index = name.lastIndexOf(".");
+        return index >= 0 ? name.slice(index).toLowerCase() : "";
+      }
+
+      function setStatus(message, type = "") {
+        statusEl.className = `status${type ? ` ${type}` : ""}`;
+        statusEl.textContent = message;
+      }
+
+      function moveItem(fromIndex, toIndex) {
+        if (fromIndex < 0 || toIndex < 0 || fromIndex >= selectedItems.length || toIndex >= selectedItems.length) {
+          return;
+        }
+
+        const [moved] = selectedItems.splice(fromIndex, 1);
+        selectedItems.splice(toIndex, 0, moved);
+        renderOrder();
+      }
+
+      function getTypeLabel(fileName) {
+        return getExtension(fileName).replace(".", "").toUpperCase();
+      }
+
+      function addFiles(fileList, useRelativePath) {
+        const sourceFiles = Array.from(fileList);
+        const sortedFiles = useRelativePath
+          ? sourceFiles.sort((a, b) => {
+              const aPath = a.webkitRelativePath || a.name;
+              const bPath = b.webkitRelativePath || b.name;
+              return aPath.localeCompare(bPath, undefined, { numeric: true, sensitivity: "base" });
+            })
+          : sourceFiles;
+
+        let ignoredCount = 0;
+
+        for (const file of sortedFiles) {
+          const extension = getExtension(file.name);
+          if (!allowedExtensions.has(extension)) {
+            ignoredCount += 1;
+            continue;
+          }
+
+          selectedItems.push({
+            id: ++idCounter,
+            file,
+            label: useRelativePath ? file.webkitRelativePath || file.name : file.name
+          });
+        }
+
+        renderOrder();
+
+        if (ignoredCount > 0) {
+          setStatus(`Ignored ${ignoredCount} unsupported file(s).`, "note");
+        } else if (!statusEl.textContent.startsWith("Processing")) {
+          setStatus("");
+        }
+      }
+
+      function renderOrder() {
+        orderListEl.innerHTML = "";
+
+        if (selectedItems.length === 0) {
+          const emptyItem = document.createElement("li");
+          emptyItem.className = "order-empty";
+          emptyItem.textContent = "No files added yet.";
+          orderListEl.appendChild(emptyItem);
+          return;
+        }
+
+        selectedItems.forEach((item, index) => {
+          const li = document.createElement("li");
+          li.className = "order-item";
+          li.draggable = true;
+          li.dataset.id = String(item.id);
+
+          const grip = document.createElement("span");
+          grip.className = "drag-grip";
+          grip.textContent = "::";
+          grip.title = "Drag to reorder";
+
+          const orderIndex = document.createElement("span");
+          orderIndex.className = "order-index";
+          orderIndex.textContent = String(index + 1).padStart(2, "0");
+
+          const fileMeta = document.createElement("div");
+          fileMeta.className = "file-meta";
+
+          const nameEl = document.createElement("p");
+          nameEl.className = "file-name";
+          nameEl.textContent = item.label;
+
+          const typeEl = document.createElement("p");
+          typeEl.className = "file-type";
+          typeEl.textContent = getTypeLabel(item.file.name);
+
+          fileMeta.appendChild(nameEl);
+          fileMeta.appendChild(typeEl);
+
+          const rowActions = document.createElement("div");
+          rowActions.className = "row-actions";
+
+          const upButton = document.createElement("button");
+          upButton.type = "button";
+          upButton.className = "icon-btn";
+          upButton.textContent = "↑";
+          upButton.title = "Move up";
+          upButton.disabled = index === 0;
+          upButton.addEventListener("click", () => moveItem(index, index - 1));
+
+          const downButton = document.createElement("button");
+          downButton.type = "button";
+          downButton.className = "icon-btn";
+          downButton.textContent = "↓";
+          downButton.title = "Move down";
+          downButton.disabled = index === selectedItems.length - 1;
+          downButton.addEventListener("click", () => moveItem(index, index + 1));
+
+          rowActions.appendChild(upButton);
+          rowActions.appendChild(downButton);
+
+          li.appendChild(grip);
+          li.appendChild(orderIndex);
+          li.appendChild(fileMeta);
+          li.appendChild(rowActions);
+
+          li.addEventListener("dragstart", (event) => {
+            draggingId = item.id;
+            li.classList.add("dragging");
+            event.dataTransfer.effectAllowed = "move";
+          });
+
+          li.addEventListener("dragover", (event) => {
+            if (draggingId === null || draggingId === item.id) {
+              return;
+            }
+
+            event.preventDefault();
+            li.classList.add("drag-over");
+          });
+
+          li.addEventListener("dragleave", () => {
+            li.classList.remove("drag-over");
+          });
+
+          li.addEventListener("drop", (event) => {
+            event.preventDefault();
+            li.classList.remove("drag-over");
+
+            if (draggingId === null || draggingId === item.id) {
+              return;
+            }
+
+            const fromIndex = selectedItems.findIndex((entry) => entry.id === draggingId);
+            const targetIndex = selectedItems.findIndex((entry) => entry.id === item.id);
+            if (fromIndex < 0 || targetIndex < 0) {
+              return;
+            }
+
+            const adjustedTargetIndex = fromIndex < targetIndex ? targetIndex - 1 : targetIndex;
+            moveItem(fromIndex, adjustedTargetIndex);
+          });
+
+          li.addEventListener("dragend", () => {
+            draggingId = null;
+            document.querySelectorAll(".order-item").forEach((row) => {
+              row.classList.remove("drag-over", "dragging");
+            });
+          });
+
+          orderListEl.appendChild(li);
+        });
+      }
+
+      filesInput.addEventListener("change", () => {
+        addFiles(filesInput.files, false);
+        filesInput.value = "";
+      });
+
+      folderInput.addEventListener("change", () => {
+        addFiles(folderInput.files, true);
+        folderInput.value = "";
+      });
+
+      clearButton.addEventListener("click", () => {
+        selectedItems = [];
+        renderOrder();
+        setStatus("");
+      });
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        if (selectedItems.length === 0) {
+          setStatus("Select at least one .ppt, .pptx, or .pdf file.", "error");
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.classList.add("loading");
+        setStatus("Processing files...", "note");
+
+        try {
+          const formData = new FormData();
+          for (const item of selectedItems) {
+            formData.append("files", item.file, item.file.name);
+          }
+
+          const response = await fetch("/process", {
+            method: "POST",
+            body: formData
+          });
+
+          if (!response.ok) {
+            let message = "Processing failed.";
+            try {
+              const payload = await response.json();
+              if (payload && payload.error) {
+                message = payload.error;
+              }
+            } catch {
+              // Keep fallback message.
+            }
+
+            throw new Error(message);
+          }
+
+          const blob = await response.blob();
+          const downloadUrl = URL.createObjectURL(blob);
+          const anchor = document.createElement("a");
+          anchor.href = downloadUrl;
+          anchor.download = "merged-output.pdf";
+          document.body.appendChild(anchor);
+          anchor.click();
+          anchor.remove();
+          URL.revokeObjectURL(downloadUrl);
+
+          setStatus("Done. Your merged PDF has been downloaded.", "success");
+        } catch (error) {
+          setStatus(error.message || "Processing failed.", "error");
+        } finally {
+          submitButton.disabled = false;
+          submitButton.classList.remove("loading");
+        }
+      });
+
+      renderOrder();
+    </script>
+  </body>
+</html>
