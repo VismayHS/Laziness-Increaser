@@ -10,7 +10,18 @@ import TextType from "@/reactbits/TextType";
 
 import "@/styles/reactbits-overrides.css";
 
-const ACCEPTED = new Set([".pdf", ".ppt", ".pptx"]);
+// Keep in sync with ALLOWED_EXTENSIONS in server.js.
+const ACCEPTED = new Set([
+  ".pdf",
+  ".ppt",
+  ".pptx",
+  ".odp",
+  ".doc",
+  ".docx",
+  ".odt",
+  ".rtf",
+  ".txt"
+]);
 
 function createFileId(file) {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -78,6 +89,19 @@ export default function App() {
     setItems((prev) => prev.filter((item) => item.id !== id));
   }
 
+  function sortByName() {
+    setItems((prev) =>
+      [...prev].sort((a, b) =>
+        a.file.name.localeCompare(b.file.name, undefined, { numeric: true, sensitivity: "base" })
+      )
+    );
+    toast.success("Sorted by name");
+  }
+
+  function reverseOrder() {
+    setItems((prev) => [...prev].reverse());
+  }
+
   async function handleProcess() {
     if (!hasFiles) {
       toast.error("Please upload at least one file.");
@@ -87,6 +111,16 @@ export default function App() {
     setIsProcessing(true);
     setStage("uploading");
     setProgress(20);
+
+    // LibreOffice pays a real ~10-15s startup cost per document or slide deck it
+    // converts (PDF files skip conversion). We can't observe true backend progress
+    // over a single fetch response, so estimate a realistic duration and animate
+    // toward it, capped below 100%, instead of faking completion in under a
+    // second and then freezing while the real request is still in flight.
+    const convertibleCount = items.filter((item) => getExt(item.file.name) !== ".pdf").length;
+    const estimatedMs = Math.max(2500, convertibleCount * 12000 + 2000);
+
+    let progressTimer = null;
 
     try {
       const formData = new FormData();
@@ -99,15 +133,27 @@ export default function App() {
         body: formData
       });
 
-      await sleep(280);
-      setStage("converting");
-      setProgress(55);
+      await sleep(250);
+      setStage(convertibleCount > 0 ? "converting" : "merging");
+      setProgress(30);
 
-      await sleep(320);
-      setStage("merging");
-      setProgress(82);
+      const startedAt = Date.now();
+      progressTimer = setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        const ratio = Math.min(elapsed / estimatedMs, 1);
+        // Ease toward 92% so the bar never claims completion before the
+        // response actually arrives; it holds near 92% if conversion runs
+        // longer than the estimate, which is honest rather than misleading.
+        const next = 30 + ratio * 62;
+        setProgress(next);
+        if (ratio > 0.6) {
+          setStage("merging");
+        }
+      }, 400);
 
       const response = await request;
+      clearInterval(progressTimer);
+      progressTimer = null;
       if (!response.ok) {
         let errorMessage = "Failed to process files.";
         try {
@@ -133,6 +179,7 @@ export default function App() {
       setProgress(100);
       toast.success("Merged PDF downloaded.");
     } catch (error) {
+      if (progressTimer) clearInterval(progressTimer);
       setStage("idle");
       setProgress(0);
       toast.error(error?.message || "Something went wrong.");
@@ -150,7 +197,8 @@ export default function App() {
         <header className="mb-8 border-b border-white/10 pb-6">
           <GradientHeading />
           <p className="mt-3 max-w-2xl text-sm text-slate-400">
-            Upload PPT, PPTX, or PDF files, reorder your queue, and export one merged PDF.
+            Upload Word documents, slide decks, or PDFs, reorder your queue, and export one
+            merged PDF.
           </p>
 
           <div className="rb-credit-wrap mt-4">
@@ -159,7 +207,7 @@ export default function App() {
               className="rb-credit-line"
               text={[
                 "Made by Vismay H S",
-                "Built for smooth PPT/PPTX + PDF merge workflows"
+                "Built for smooth DOC + PPT + PDF merge workflows"
               ]}
               typingSpeed={75}
               deletingSpeed={50}
@@ -170,7 +218,7 @@ export default function App() {
               cursorBlinkDuration={0.5}
             />
             <p className="rb-host-note">
-              LibreOffice must be installed for PPT/PPTX conversion from{" "}
+              LibreOffice must be installed to convert anything that is not already a PDF —{" "}
               <a
                 href="https://www.libreoffice.org/download/"
                 target="_blank"
@@ -179,6 +227,10 @@ export default function App() {
               >
                 libreoffice.org/download
               </a>
+            </p>
+            <p className="rb-host-note">
+              Conversion takes roughly 10-15s per non-PDF file (LibreOffice startup
+              time) — this is expected, not a hang.
             </p>
           </div>
         </header>
@@ -190,14 +242,37 @@ export default function App() {
             {hasFiles ? (
               <section className="rb-queue-shell">
                 <div className="rb-queue-head">
-                  <p className="rb-queue-title">Merge Queue</p>
-                  <p className="rb-queue-meta">{sortedCountLabel}</p>
+                  <div>
+                    <p className="rb-queue-title">Merge Queue</p>
+                    <p className="rb-queue-meta">
+                      {sortedCountLabel} &middot; drag any card to reorder
+                    </p>
+                  </div>
+
+                  <div className="rb-queue-tools">
+                    <button
+                      type="button"
+                      className="rb-queue-tool"
+                      onClick={sortByName}
+                      disabled={isProcessing || items.length < 2}
+                    >
+                      Sort A–Z
+                    </button>
+                    <button
+                      type="button"
+                      className="rb-queue-tool"
+                      onClick={reverseOrder}
+                      disabled={isProcessing || items.length < 2}
+                    >
+                      Reverse
+                    </button>
+                  </div>
                 </div>
                 <SortableList items={items} onReorder={setItems} onRemove={removeFile} />
               </section>
             ) : (
               <div className="rb-empty-queue">
-                Queue is empty. Add files above, then drag to reorder before merging.
+                Queue is empty. Add files above, then drag the cards into the order you want.
               </div>
             )}
           </section>

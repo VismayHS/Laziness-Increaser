@@ -22,8 +22,10 @@ export default defineConfig({
     }
   },
   server: {
+    port: 10001,
+    strictPort: true,
     proxy: {
-      "/process": "http://localhost:3000"
+      "/process": "http://localhost:10002"
     }
   }
 });

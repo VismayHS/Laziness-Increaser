@@ -134,10 +134,11 @@
 
 .rb-queue-head {
   display: flex;
-  align-items: baseline;
+  flex-wrap: wrap;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .rb-queue-title {
@@ -162,123 +163,133 @@
   font-size: 0.9rem;
 }
 
-.rb-file-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  position: relative;
+/* Reorder grid ------------------------------------------------------------- */
+
+.rb-file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.25rem, 1fr));
+  gap: 0.75rem;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .rb-sortable-item {
   list-style: none;
   transform-origin: center;
   will-change: transform;
-  touch-action: none;
 }
 
-.rb-sortable-item.is-dragging {
-  position: relative;
-  z-index: 20;
-}
-
+/* The whole tile is the drag surface, so it owns the grab cursor and must not
+   let the browser claim touch gestures for scrolling mid-drag. */
 .rb-file-card {
   position: relative;
-  overflow: hidden;
-  padding: 0.72rem !important;
-  border-radius: 0.85rem !important;
-  border: 1px solid rgba(148, 163, 184, 0.28) !important;
-  background: rgba(15, 23, 42, 0.68) !important;
-  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.7rem;
+  height: 100%;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  background: rgba(15, 23, 42, 0.68);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease,
+    transform 150ms ease;
 }
 
-.rb-file-shell {
-  transition: opacity 180ms ease;
+.rb-file-card:hover {
+  border-color: rgba(125, 211, 252, 0.5);
+  background: rgba(30, 41, 59, 0.78);
+  transform: translateY(-2px);
 }
 
-.rb-file-shell-dragging {
-  opacity: 0.92;
-}
-
-.rb-file-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(180deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0));
-  opacity: 0;
-  transition: opacity 160ms ease;
-  pointer-events: none;
-}
-
-.rb-file-shell:hover .rb-file-card::before,
-.rb-file-card:focus-within::before {
-  opacity: 1;
+.rb-file-card:focus-visible {
+  outline: 2px solid rgba(125, 211, 252, 0.75);
+  outline-offset: 2px;
 }
 
 .rb-file-card-dragging {
-  border-color: rgba(125, 211, 252, 0.55) !important;
-  box-shadow: 0 10px 24px rgba(14, 116, 144, 0.25);
+  cursor: grabbing;
+  border-style: dashed;
+  border-color: rgba(125, 211, 252, 0.5);
+  background: rgba(30, 41, 59, 0.45);
+  transform: none;
 }
 
 .rb-file-card-overlay {
-  padding: 0.72rem;
-  border-radius: 0.85rem;
-  border: 1px solid rgba(125, 211, 252, 0.55);
-  background: rgba(15, 23, 42, 0.92);
-  box-shadow: 0 14px 30px rgba(2, 132, 199, 0.25);
+  cursor: grabbing;
+  border-color: rgba(125, 211, 252, 0.75);
+  background: rgba(15, 23, 42, 0.96);
+  box-shadow: 0 18px 38px rgba(2, 132, 199, 0.35);
+  transform: scale(1.04) rotate(-1.5deg);
 }
 
-.rb-file-card-over {
-  border-color: rgba(125, 211, 252, 0.58) !important;
-  background: rgba(30, 41, 59, 0.82) !important;
-}
-
-.rb-file-row {
+.rb-file-top {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  min-height: 2.65rem;
+  justify-content: space-between;
+  gap: 0.4rem;
 }
 
-.rb-file-drag,
-.rb-file-btn {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 0.55rem;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  background: rgba(15, 23, 42, 0.75);
+.rb-file-index {
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.35rem;
+  border-radius: 0.45rem;
+  background: rgba(59, 130, 246, 0.22);
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rb-file-remove {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.45rem;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.rb-file-card:hover .rb-file-remove,
+.rb-file-card:focus-within .rb-file-remove {
+  opacity: 1;
+}
+
+.rb-file-remove:hover {
+  color: #fca5a5;
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+.rb-file-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.85rem 0.5rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: #e2e8f0;
+}
+
+.rb-file-kind {
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: #94a3b8;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color 140ms ease, color 140ms ease;
-}
-
-.rb-file-drag {
-  cursor: grab;
-}
-
-.rb-sortable-item.is-dragging .rb-file-drag {
-  cursor: grabbing;
-}
-
-.rb-file-drag:hover,
-.rb-file-btn:hover {
-  border-color: rgba(148, 163, 184, 0.45);
-  color: #e2e8f0;
-}
-
-.rb-file-icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.65rem;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #e2e8f0;
 }
 
 .rb-file-icon-pdf {
@@ -289,25 +300,103 @@
   background: rgba(249, 115, 22, 0.18);
 }
 
+.rb-file-icon-doc {
+  background: rgba(45, 212, 191, 0.18);
+}
+
 .rb-file-meta {
   min-width: 0;
-  flex: 1;
 }
 
 .rb-file-name {
   margin: 0;
   color: #e2e8f0;
-  font-size: 0.93rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  white-space: nowrap;
+  line-height: 1.25;
   overflow: hidden;
-  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 
 .rb-file-size {
-  margin: 0.12rem 0 0;
+  margin: 0.15rem 0 0;
   color: #94a3b8;
-  font-size: 0.76rem;
+  font-size: 0.7rem;
+}
+
+.rb-file-nudge {
+  margin-top: auto;
+  display: flex;
+  gap: 0.35rem;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.rb-file-card:hover .rb-file-nudge,
+.rb-file-card:focus-within .rb-file-nudge {
+  opacity: 1;
+}
+
+.rb-file-btn {
+  flex: 1;
+  height: 1.6rem;
+  border-radius: 0.45rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.75);
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.rb-file-btn:hover:not(:disabled) {
+  border-color: rgba(148, 163, 184, 0.5);
+  color: #e2e8f0;
+}
+
+.rb-file-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Touch and keyboard users never get :hover, so the controls stay visible. */
+@media (hover: none) {
+  .rb-file-remove,
+  .rb-file-nudge {
+    opacity: 1;
+  }
+}
+
+.rb-queue-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.rb-queue-tool {
+  padding: 0.28rem 0.6rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.7);
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: border-color 140ms ease, color 140ms ease;
+}
+
+.rb-queue-tool:hover:not(:disabled) {
+  border-color: rgba(125, 211, 252, 0.5);
+  color: #f1f5f9;
+}
+
+.rb-queue-tool:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .rb-status-panel {

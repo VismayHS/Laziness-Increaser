@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PPT/PDF Converter + Merger</title>
+    <title>Doc/PPT/PDF Converter + Merger</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -369,9 +369,9 @@
   <body>
     <main class="app">
       <header class="hero">
-        <h1>PPT/PDF Converter + Merger</h1>
+        <h1>Doc/PPT/PDF Converter + Merger</h1>
         <p>
-          Add your .ppt, .pptx, and .pdf files, reorder them exactly how you want, then download one merged PDF.
+          Add your Word documents, slide decks, and PDFs, reorder them exactly how you want, then download one merged PDF.
         </p>
       </header>
 
@@ -381,7 +381,7 @@
             <label class="picker" for="files-input">
               <span class="picker-title">Add Files</span>
               <span class="picker-sub">Pick one or many files from any folder.</span>
-              <input id="files-input" type="file" multiple accept=".ppt,.pptx,.pdf" />
+              <input id="files-input" type="file" multiple accept=".pdf,.doc,.docx,.odt,.rtf,.txt,.ppt,.pptx,.odp" />
             </label>
 
             <label class="picker" for="folder-input">
@@ -406,7 +406,7 @@
 
         <ul id="order-list" class="order-list"></ul>
 
-        <p class="footnote">LibreOffice must be installed to convert PPT/PPTX to PDF.</p>
+        <p class="footnote">LibreOffice must be installed to convert anything that is not already a PDF.</p>
       </section>
     </main>
 
@@ -419,7 +419,17 @@
       const statusEl = document.getElementById("status");
       const orderListEl = document.getElementById("order-list");
 
-      const allowedExtensions = new Set([".ppt", ".pptx", ".pdf"]);
+      const allowedExtensions = new Set([
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".odt",
+        ".rtf",
+        ".txt",
+        ".ppt",
+        ".pptx",
+        ".odp"
+      ]);
       let selectedItems = [];
       let idCounter = 0;
       let draggingId = null;
@@ -618,7 +628,7 @@
         event.preventDefault();
 
         if (selectedItems.length === 0) {
-          setStatus("Select at least one .ppt, .pptx, or .pdf file.", "error");
+          setStatus("Select at least one document, slide deck, or PDF file.", "error");
           return;
         }
 

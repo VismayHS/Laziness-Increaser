@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils";
 const ACCEPT = {
   "application/pdf": [".pdf"],
   "application/vnd.ms-powerpoint": [".ppt"],
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"]
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+  "application/vnd.oasis.opendocument.presentation": [".odp"],
+  "application/msword": [".doc"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+  "application/vnd.oasis.opendocument.text": [".odt"],
+  "application/rtf": [".rtf"],
+  "text/plain": [".txt"]
 };
 
 export function FileUploadDropzone({ onFilesAdded, disabled = false }) {
@@ -35,7 +41,9 @@ export function FileUploadDropzone({ onFilesAdded, disabled = false }) {
             {isDragActive ? <FolderOpen className="h-10 w-10 text-primary" /> : <FileUp className="h-10 w-10 text-primary" />}
           </motion.div>
           <p className="text-lg font-semibold">Drop your files here or click to upload</p>
-          <p className="text-sm text-muted-foreground">Supported: .pdf, .ppt, .pptx</p>
+          <p className="text-sm text-muted-foreground">
+            Supported: .pdf, .doc, .docx, .odt, .rtf, .txt, .ppt, .pptx, .odp
+          </p>
         </CardContent>
       </Card>
     </motion.div>

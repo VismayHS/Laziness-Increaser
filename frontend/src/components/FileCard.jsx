@@ -1,4 +1,20 @@
-import { FileText, GripVertical, Presentation, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FileText, FileType2, Presentation, X } from "lucide-react";
+
+const SLIDE_EXTENSIONS = [".ppt", ".pptx", ".odp"];
+
+function describeKind(name) {
+  const lower = name.toLowerCase();
+
+  if (lower.endsWith(".pdf")) {
+    return { icon: FileText, variant: "pdf", label: "PDF" };
+  }
+
+  if (SLIDE_EXTENSIONS.some((extension) => lower.endsWith(extension))) {
+    return { icon: Presentation, variant: "ppt", label: "Slides" };
+  }
+
+  return { icon: FileType2, variant: "doc", label: "Document" };
+}
 
 function formatBytes(bytes) {
   if (!bytes) return "0 B";
@@ -8,49 +24,96 @@ function formatBytes(bytes) {
   return `${value.toFixed(value >= 100 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
 }
 
+// Buttons sit inside the drag surface. The sortable listeners activate on
+// mousedown/touchstart, so both must be stopped here — stopping only pointerdown
+// would still let a small drag off a button hijack the click.
+const stopDragStart = {
+  onPointerDown: (event) => event.stopPropagation(),
+  onMouseDown: (event) => event.stopPropagation(),
+  onTouchStart: (event) => event.stopPropagation()
+};
+
 export function FileCard({
   item,
+  index,
+  total,
   onRemove,
+  onMove,
   dragAttributes,
   dragListeners,
   isDragging = false,
-  overlay = false,
-  isOver = false
+  overlay = false
 }) {
-  const isPdf = item.file.name.toLowerCase().endsWith(".pdf");
-  const TypeIcon = isPdf ? FileText : Presentation;
-  const cardClass = `rb-file-card ${isDragging ? "rb-file-card-dragging" : ""} ${overlay ? "rb-file-card-overlay" : ""} ${isOver ? "rb-file-card-over" : ""}`;
+  const { icon: TypeIcon, variant, label } = describeKind(item.file.name);
 
-  const content = (
-    <div className="rb-file-row">
-      <button type="button" className="rb-file-drag" aria-label="Drag to reorder" {...dragAttributes} {...dragListeners}>
-        <GripVertical className="h-4 w-4" />
-      </button>
+  const cardClass = [
+    "rb-file-card",
+    `rb-file-card-${variant}`,
+    isDragging ? "rb-file-card-dragging" : "",
+    overlay ? "rb-file-card-overlay" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-      <div className={`rb-file-icon ${isPdf ? "rb-file-icon-pdf" : "rb-file-icon-ppt"}`}>
-        <TypeIcon className="h-4 w-4" />
+  const isFirst = index === 0;
+  const isLast = index === total - 1;
+
+  return (
+    <div className={cardClass} {...dragAttributes} {...dragListeners}>
+      <div className="rb-file-top">
+        <span className="rb-file-index" aria-label={`Position ${index + 1} of ${total}`}>
+          {index + 1}
+        </span>
+
+        {!overlay && (
+          <button
+            type="button"
+            className="rb-file-remove"
+            {...stopDragStart}
+            onClick={() => onRemove(item.id)}
+            aria-label={`Remove ${item.file.name}`}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      <div className={`rb-file-thumb rb-file-icon-${variant}`}>
+        <TypeIcon className="h-7 w-7" />
+        <span className="rb-file-kind">{label}</span>
       </div>
 
       <div className="rb-file-meta">
-        <p className="rb-file-name">{item.file.name}</p>
+        <p className="rb-file-name" title={item.file.name}>
+          {item.file.name}
+        </p>
         <p className="rb-file-size">{formatBytes(item.file.size)}</p>
       </div>
 
       {!overlay && (
-        <button type="button" className="rb-file-btn" onClick={() => onRemove(item.id)} aria-label={`Remove ${item.file.name}`}>
-          <X className="h-4 w-4" />
-        </button>
+        <div className="rb-file-nudge">
+          <button
+            type="button"
+            className="rb-file-btn"
+            {...stopDragStart}
+            onClick={() => onMove(index, index - 1)}
+            disabled={isFirst}
+            aria-label={`Move ${item.file.name} earlier`}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            className="rb-file-btn"
+            {...stopDragStart}
+            onClick={() => onMove(index, index + 1)}
+            disabled={isLast}
+            aria-label={`Move ${item.file.name} later`}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
       )}
-    </div>
-  );
-
-  if (overlay) {
-    return <div className={cardClass}>{content}</div>;
-  }
-
-  return (
-    <div className={`rb-file-shell ${isDragging ? "rb-file-shell-dragging" : ""}`}>
-      <div className={cardClass}>{content}</div>
     </div>
   );
 }

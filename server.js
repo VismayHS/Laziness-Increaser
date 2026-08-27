@@ -5,13 +5,35 @@ const fs = require("fs");
 const fsp = require("fs/promises");
 const os = require("os");
 const path = require("path");
+const { pathToFileURL } = require("url");
 const { spawn } = require("child_process");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10002;
 
 const TEMP_ROOT = path.join(os.tmpdir(), "ppt-pdf-converter-merger");
-const ALLOWED_EXTENSIONS = new Set([".pdf", ".ppt", ".pptx"]);
+
+// Private LibreOffice profile. Without this, `soffice --headless` refuses to
+// start whenever the user already has LibreOffice open in the GUI, because both
+// would contend for the same default user profile.
+const LIBREOFFICE_PROFILE = path.join(TEMP_ROOT, "lo-profile");
+
+// Explicit export filters rather than a bare `--convert-to pdf`: LibreOffice
+// otherwise guesses which module owns an extension, and hands .txt to Draw,
+// which renders one garbled page instead of a paginated document.
+const CONVERTIBLE_FILTERS = new Map([
+  [".ppt", "pdf:impress_pdf_Export"],
+  [".pptx", "pdf:impress_pdf_Export"],
+  [".odp", "pdf:impress_pdf_Export"],
+  [".doc", "pdf:writer_pdf_Export"],
+  [".docx", "pdf:writer_pdf_Export"],
+  [".odt", "pdf:writer_pdf_Export"],
+  [".rtf", "pdf:writer_pdf_Export"],
+  [".txt", "pdf:writer_pdf_Export"]
+]);
+
+const ALLOWED_EXTENSIONS = new Set([".pdf", ...CONVERTIBLE_FILTERS.keys()]);
+const ALLOWED_LABEL = [...ALLOWED_EXTENSIONS].join(", ");
 const FRONTEND_DIST = path.join(__dirname, "frontend", "dist");
 const LEGACY_PUBLIC = path.join(__dirname, "public");
 const CLIENT_ROOT = fs.existsSync(FRONTEND_DIST) ? FRONTEND_DIST : LEGACY_PUBLIC;
@@ -76,7 +98,7 @@ function runCommand(command, args) {
   });
 }
 
-async function convertPptToPdf(inputPath, outputDir) {
+async function convertToPdf(inputPath, outputDir, filter) {
   const candidates = getLibreOfficeCandidates();
   let lastError = null;
 
@@ -87,9 +109,10 @@ async function convertPptToPdf(inputPath, outputDir) {
 
     try {
       await runCommand(candidate, [
+        `-env:UserInstallation=${pathToFileURL(LIBREOFFICE_PROFILE).href}`,
         "--headless",
         "--convert-to",
-        "pdf",
+        filter,
         "--outdir",
         outputDir,
         inputPath
@@ -100,7 +123,9 @@ async function convertPptToPdf(inputPath, outputDir) {
         return outputPath;
       }
 
-      throw new Error("PPT/PPTX conversion command succeeded but no PDF was produced.");
+      throw new Error(
+        `Conversion of ${path.basename(inputPath)} succeeded but no PDF was produced.`
+      );
     } catch (error) {
       lastError = error;
 
@@ -158,7 +183,7 @@ app.post("/process", upload.array("files", 300), async (req, res) => {
 
   try {
     if (uploadedFiles.length === 0) {
-      res.status(400).json({ error: "Upload at least one .ppt, .pptx, or .pdf file." });
+      res.status(400).json({ error: `Upload at least one file (${ALLOWED_LABEL}).` });
       return;
     }
 
@@ -169,7 +194,9 @@ app.post("/process", upload.array("files", 300), async (req, res) => {
 
     if (unsupported.length > 0) {
       res.status(400).json({
-        error: `Unsupported files detected: ${unsupported.map((file) => file.originalname).join(", ")}`
+        error:
+          `Unsupported files detected: ${unsupported.map((file) => file.originalname).join(", ")}. ` +
+          `Supported types: ${ALLOWED_LABEL}.`
       });
       return;
     }
@@ -190,7 +217,11 @@ app.post("/process", upload.array("files", 300), async (req, res) => {
         continue;
       }
 
-      const convertedPdfPath = await convertPptToPdf(file.path, outputDir);
+      const convertedPdfPath = await convertToPdf(
+        file.path,
+        outputDir,
+        CONVERTIBLE_FILTERS.get(extension)
+      );
       orderedPdfPaths.push(convertedPdfPath);
     }
 

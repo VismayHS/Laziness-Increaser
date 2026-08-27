@@ -1,32 +1,66 @@
-# PPT/PDF Converter and Merger
+# Document / PPT / PDF Converter and Merger
 
 Basic local website that does exactly this:
 
-1. Accept multiple `.ppt`, `.pptx`, and `.pdf` files
-2. Convert `.ppt` / `.pptx` to PDF
+1. Accept multiple documents, slide decks, and PDFs
+2. Convert everything that is not already a PDF
 3. Merge all PDFs in the same order they were uploaded
 4. Download one merged PDF
+
+Any combination works — a `.docx`, a `.pptx`, and a `.pdf` in one queue merge into a
+single output.
+
+## Supported file types
+
+| Group | Extensions | Handled by |
+| --- | --- | --- |
+| Documents | `.doc`, `.docx`, `.odt`, `.rtf`, `.txt` | LibreOffice Writer |
+| Presentations | `.ppt`, `.pptx`, `.odp` | LibreOffice Impress |
+| PDF | `.pdf` | merged directly, no conversion |
 
 ## Requirements
 
 - Node.js 18+
-- LibreOffice installed
+- LibreOffice installed — required for every non-PDF input
   - Windows: make sure `soffice.exe` is in PATH
   - Default install path usually works automatically:
     - `C:\Program Files\LibreOffice\program\soffice.exe`
 
-## Run
+## Run (recommended)
+
+From the project root:
+
+```bat
+start-merger.bat
+```
+
+Then open:
+
+```text
+http://localhost:10001
+```
+
+The script checks what is already running, starts only the missing service, waits for
+both to respond, and prints `[ACTIVE]`. It is safe to run repeatedly.
+
+| Service | Port | Started as |
+| --- | --- | --- |
+| Frontend (Vite dev server) | `10001` | `npm --prefix frontend run dev` |
+| Backend (API `/process`) | `10002` | `node server.js` |
+
+The Vite dev server proxies `/process` to the backend, so you only ever open port 10001.
+
+## Run (single server, no dev server)
+
+This builds the frontend and serves it from the Node backend on one port:
 
 ```bash
 npm install
 npm start
 ```
 
-Then open:
-
-```text
-http://localhost:3000
-```
+Then open `http://localhost:10002` — the backend serves `frontend/dist` once it exists.
+Override the port with the `PORT` environment variable.
 
 ## Usage
 
@@ -38,27 +72,19 @@ http://localhost:3000
 ## React Frontend (Enhanced)
 
 An enhanced React + Tailwind UI is available in `frontend/` with drag-and-drop upload,
-sortable file cards, progress UI, toasts, and dark mode.
-
-Run everything on port 3000 with one command:
-
-```bash
-# From project root
-npm.cmd start
-```
-
-Open `http://localhost:3000`.
+sortable file cards, progress UI, toasts, and dark mode. It is what `start-merger.bat`
+launches on port 10001.
 
 ## Hosting Note (Vercel)
 
-This project uses a Node backend route (`/process`) and LibreOffice (`soffice`) to convert `.ppt/.pptx` to PDF.
+This project uses a Node backend route (`/process`) and LibreOffice (`soffice`) to convert documents and slide decks to PDF.
 
 - End users do **not** need LibreOffice installed.
 - The **server host** running the backend must have LibreOffice installed and accessible in PATH.
 
 ### Important for Vercel
 
-On standard Vercel serverless deployments, LibreOffice is typically not available, so PPT/PPTX conversion will fail.
+On standard Vercel serverless deployments, LibreOffice is typically not available, so all non-PDF conversion will fail.
 
 If you still want to use Vercel:
 
@@ -83,14 +109,14 @@ You can test locally:
 
 ```bash
 docker build -t ppt-pdf-merge-app .
-docker run --rm -p 3000:3000 ppt-pdf-merge-app
+docker run --rm -p 10002:10002 ppt-pdf-merge-app
 ```
 
-Then open `http://localhost:3000`.
+Then open `http://localhost:10002`.
 
 When deploying this Docker image to Render/Railway/VM:
 
-1. Expose port `3000`
+1. Expose port `10002` (or set `PORT` and expose that instead)
 2. Start command is already in Docker (`node server.js`)
 
 ### 2) Deploy Frontend on Vercel
@@ -113,10 +139,10 @@ with your real backend URL, for example:
 ### 3) Final Check
 
 1. Open your Vercel site
-2. Upload `.ppt/.pptx/.pdf`
+2. Upload a mix of documents, slide decks, and PDFs
 3. Click **Convert + Merge**
 4. If conversion fails, verify backend host has LibreOffice available as `soffice`
 
 ## Inspiration
 
-This was inspired by this user's Manifest extension: https://github.com/Artificialhuman74/Manifest
+This was inspired by this user's Manifest extension: `https://github.com/Artificialhuman74/`Manifest

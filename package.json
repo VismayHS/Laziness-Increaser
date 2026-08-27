@@ -2,7 +2,7 @@
   "name": "ppt-pdf-converter-and-merger",
   "version": "1.0.0",
   "private": true,
-  "description": "Basic local web app to convert PPT/PPTX files to PDF and merge with existing PDFs in order.",
+  "description": "Local web app to convert Word documents and slide decks to PDF and merge them with existing PDFs in order.",
   "main": "server.js",
   "scripts": {
     "install:frontend": "npm --prefix frontend install",

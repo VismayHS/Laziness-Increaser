@@ -9,7 +9,7 @@ export function GradientHeading() {
         direction="horizontal"
         className="text-3xl font-semibold tracking-tight sm:text-4xl"
       >
-        PPT to PDF Converter and Merger
+        Document to PDF Converter and Merger
       </GradientText>
     </div>
   );

@@ -1,4 +1,4 @@
-import { FileText, Presentation, UploadCloud } from "lucide-react";
+import { FileText, FileType2, Presentation, UploadCloud } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 import BorderGlow from "@/reactbits/BorderGlow";
@@ -6,7 +6,13 @@ import BorderGlow from "@/reactbits/BorderGlow";
 const ACCEPT = {
   "application/pdf": [".pdf"],
   "application/vnd.ms-powerpoint": [".ppt"],
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"]
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+  "application/vnd.oasis.opendocument.presentation": [".odp"],
+  "application/msword": [".doc"],
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+  "application/vnd.oasis.opendocument.text": [".odt"],
+  "application/rtf": [".rtf"],
+  "text/plain": [".txt"]
 };
 
 export function DropzoneCard({ onFilesAdded, disabled = false }) {
@@ -39,9 +45,15 @@ export function DropzoneCard({ onFilesAdded, disabled = false }) {
           </span>
 
           <p className="rb-dropzone-title">{isDragActive ? "Release to add files" : "Drop files here or click to browse"}</p>
-          <p className="rb-dropzone-sub">Supports .pdf, .ppt, and .pptx</p>
+          <p className="rb-dropzone-sub">
+            Supports .pdf, .doc, .docx, .odt, .rtf, .txt, .ppt, .pptx, and .odp
+          </p>
 
           <div className="rb-dropzone-types">
+            <span>
+              <FileType2 className="h-4 w-4" />
+              DOC / DOCX
+            </span>
             <span>
               <Presentation className="h-4 w-4" />
               PPT / PPTX
